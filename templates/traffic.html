@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Monitor - IDS</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item active"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>🌐 Traffic Monitor</h1>
+                <p class="subtitle">Real-time view of all network traffic</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="refreshTrafficBtn">🔄 Refresh</button>
+                <button class="btn btn-danger btn-sm" id="clearTrafficBtn">🗑️ Clear</button>
+            </div>
+        </header>
+
+        <!-- SUMMARY CARDS -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">🌐</div>
+                    <div class="stat-info">
+                        <h3>Total Requests</h3>
+                        <p class="stat-number" id="totalRequests">0</p>
+                        <span class="stat-label">All traffic</span>
+                    </div>
+                </div>
+                <div class="stat-card connections">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-info">
+                        <h3>Unique IPs</h3>
+                        <p class="stat-number" id="uniqueIPs">0</p>
+                        <span class="stat-label">Distinct sources</span>
+                    </div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Normal Traffic</h3>
+                        <p class="stat-number" id="normalIPs">0</p>
+                        <span class="stat-label">Clean IPs</span>
+                    </div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <h3>Threat IPs</h3>
+                        <p class="stat-number" id="threatIPs">0</p>
+                        <span class="stat-label">Suspicious</span>
+                    </div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-icon">📥</div>
+                    <div class="stat-info">
+                        <h3>Data In</h3>
+                        <p class="stat-number" id="totalBytesIn">0 B</p>
+                        <span class="stat-label">Received</span>
+                    </div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-icon">📤</div>
+                    <div class="stat-info">
+                        <h3>Data Out</h3>
+                        <p class="stat-number" id="totalBytesOut">0 B</p>
+                        <span class="stat-label">Sent</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FILTERS -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Traffic Type</label>
+                    <select id="trafficTypeFilter" class="filter-select">
+                        <option value="all">All Traffic</option>
+                        <option value="normal">Normal Only</option>
+                        <option value="threat">Threats Only</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Filter by IP</label>
+                    <input type="text" id="trafficIpFilter" class="filter-input"
+                           placeholder="Enter IP address...">
+                </div>
+                <div class="filter-group">
+                    <label>Per Page</label>
+                    <select id="trafficLimit" class="filter-select">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-info btn-sm" id="applyTrafficFilter">🔍 Apply</button>
+                    <button class="btn btn-secondary btn-sm" id="clearTrafficFilter">✕ Clear</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOP TALKERS -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>🔝 Top Talkers</h2>
+            </div>
+            <div class="alerts-table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Requests</th>
+                            <th>Packets In</th>
+                            <th>Packets Out</th>
+                            <th>Data In</th>
+                            <th>Data Out</th>
+                            <th>Alerts</th>
+                            <th>Classification</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topTalkersBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">🌐</span>
+                                    <p>No traffic data yet</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TRAFFIC LOG -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>📋 Live Traffic Log</h2>
+                <span id="trafficCount" class="subtitle">0 entries</span>
+            </div>
+            <div class="alerts-table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>IP Address</th>
+                            <th>Method</th>
+                            <th>Path</th>
+                            <th>Status</th>
+                            <th>Bytes In</th>
+                            <th>Bytes Out</th>
+                            <th>Type</th>
+                            <th>Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trafficBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">📡</span>
+                                    <p>No traffic recorded yet</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="trafficPagination" style="display:none">
+                <button class="btn btn-secondary btn-sm" id="trafficPrevPage">← Previous</button>
+                <span id="trafficPageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary btn-sm" id="trafficNextPage">Next →</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Traffic page state
+        let trafficPage = 1;
+        let trafficTotalPages = 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentPage = 'traffic';
+            loadTrafficSummary();
+            loadTopTalkers();
+            loadTrafficLog();
+            updateNotifCount();
+
+            setInterval(() => {
+                loadTrafficSummary();
+                loadTopTalkers();
+                loadTrafficLog();
+            }, 5000);
+
+            on('refreshTrafficBtn', 'click', () => {
+                loadTrafficSummary();
+                loadTopTalkers();
+                loadTrafficLog();
+                showToast('Refreshed', 'info');
+            });
+
+            on('clearTrafficBtn', 'click', async () => {
+                if (!confirm('Clear all traffic logs?')) return;
+                await fetch('/api/traffic/clear', { method: 'POST' });
+                loadTrafficSummary();
+                loadTopTalkers();
+                loadTrafficLog();
+                showToast('Cleared', 'success');
+            });
+
+            on('applyTrafficFilter', 'click', () => { trafficPage = 1; loadTrafficLog(); });
+            on('clearTrafficFilter', 'click', () => {
+                document.getElementById('trafficTypeFilter').value = 'all';
+                document.getElementById('trafficIpFilter').value = '';
+                document.getElementById('trafficLimit').value = '50';
+                trafficPage = 1;
+                loadTrafficLog();
+            });
+
+            on('trafficPrevPage', 'click', () => {
+                if (trafficPage > 1) { trafficPage--; loadTrafficLog(); }
+            });
+            on('trafficNextPage', 'click', () => {
+                if (trafficPage < trafficTotalPages) { trafficPage++; loadTrafficLog(); }
+            });
+        });
+
+        async function loadTrafficSummary() {
+            try {
+                const r = await fetch('/api/traffic/summary');
+                const s = await r.json();
+                setEl('totalRequests', s.total_requests || 0);
+                setEl('uniqueIPs', s.total_unique_ips || 0);
+                setEl('normalIPs', s.normal_ips || 0);
+                setEl('threatIPs', s.threat_ips || 0);
+                setEl('totalBytesIn', fmtBytes(s.total_bytes_in || 0));
+                setEl('totalBytesOut', fmtBytes(s.total_bytes_out || 0));
+            } catch (e) { console.error('loadTrafficSummary:', e); }
+        }
+
+        async function loadTopTalkers() {
+            try {
+                const r    = await fetch('/api/traffic/top-talkers?limit=10');
+                const data = await r.json();
+                const tbody = document.getElementById('topTalkersBody');
+
+                if (!data.length) {
+                    tbody.innerHTML = '<tr class="no-data-row"><td colspan="9"><div class="no-data"><span class="no-data-icon">🌐</span><p>No traffic data</p></div></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(ip => `
+                    <tr>
+                        <td><span class="ip-link" onclick="showIPDetails('${escHtml(ip.ip)}')">${escHtml(ip.ip)}</span></td>
+                        <td><strong>${ip.total_requests}</strong></td>
+                        <td>${ip.packets_in || 0}</td>
+                        <td>${ip.packets_out || 0}</td>
+                        <td>${fmtBytes(ip.bytes_in || 0)}</td>
+                        <td>${fmtBytes(ip.bytes_out || 0)}</td>
+                        <td>${ip.threats > 0
+                            ? '<span class="severity-badge severity-high">' + ip.threats + '</span>'
+                            : '<span class="severity-badge severity-low">0</span>'}</td>
+                        <td><span class="classification-badge class-${ip.class || 'normal'}">${ip.class || 'normal'}</span></td>
+                        <td><button class="action-btn details" onclick="showIPDetails('${escHtml(ip.ip)}')">📋</button></td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('loadTopTalkers:', e); }
+        }
+
+        async function loadTrafficLog() {
+            try {
+                const typeF  = document.getElementById('trafficTypeFilter').value;
+                const ipF    = document.getElementById('trafficIpFilter').value.trim();
+                const limit  = document.getElementById('trafficLimit').value;
+
+                let url = `/api/traffic?limit=${limit}&page=${trafficPage}`;
+                if (typeF === 'normal')  url += '&normal_only=true';
+                if (typeF === 'threat')  url += '&threats_only=true';
+                if (ipF)                 url += `&ip=${ipF}`;
+
+                const r    = await fetch(url);
+                const resp = await r.json();
+                const data = resp.traffic || resp;
+                const tbody = document.getElementById('trafficBody');
+
+                trafficTotalPages = resp.total_pages || 1;
+                trafficPage       = resp.page || 1;
+
+                setEl('trafficCount', `${resp.total || data.length} entries`);
+
+                // Pagination
+                const pag = document.getElementById('trafficPagination');
+                if (trafficTotalPages > 1) {
+                    pag.style.display = 'flex';
+                    setEl('trafficPageInfo', `Page ${trafficPage} of ${trafficTotalPages}`);
+                } else {
+                    pag.style.display = 'none';
+                }
+
+                if (!data.length) {
+                    tbody.innerHTML = '<tr class="no-data-row"><td colspan="9"><div class="no-data"><span class="no-data-icon">📡</span><p>No traffic found</p></div></td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(e => {
+                    const time = new Date(e.timestamp).toLocaleTimeString();
+                    const isT  = e.is_threat;
+                    const bg   = isT ? 'style="background:rgba(239,68,68,0.05)"' : '';
+                    return `
+                    <tr ${bg}>
+                        <td class="cell-time">${time}</td>
+                        <td><span class="ip-link" onclick="showIPDetails('${escHtml(e.ip)}')">${escHtml(e.ip)}</span></td>
+                        <td><span class="rule-badge">${e.method}</span></td>
+                        <td class="cell-path" title="${escHtml(e.path)}">${escHtml(e.path)}</td>
+                        <td><span class="status-badge ${e.status_code < 400 ? 'status-acknowledged' : 'status-false_positive'}">${e.status_code}</span></td>
+                        <td>${fmtBytes(e.bytes_in || 0)}</td>
+                        <td>${fmtBytes(e.bytes_out || 0)}</td>
+                        <td>${isT
+                            ? '<span class="severity-badge severity-high">⚠️ ' + (e.threat_type || 'threat') + '</span>'
+                            : '<span class="severity-badge severity-low">✅ normal</span>'}</td>
+                        <td><span class="classification-badge class-${e.classification || 'normal'}">${e.classification || 'normal'}</span></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) { console.error('loadTrafficLog:', e); }
+        }
+    </script>
+
+    <style>
+        .classification-badge { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600; text-transform:uppercase; }
+        .class-normal { background:rgba(16,185,129,0.15); color:var(--success); }
+        .class-low_risk { background:rgba(59,130,246,0.15); color:var(--info); }
+        .class-suspicious { background:rgba(245,158,11,0.15); color:var(--warning); }
+        .class-attacker { background:rgba(239,68,68,0.15); color:var(--danger); }
+        .class-bot { background:rgba(139,92,246,0.15); color:#8b5cf6; }
+        .class-high_volume { background:rgba(6,182,212,0.15); color:#06b6d4; }
+        .cell-time { font-size:12px; white-space:nowrap; }
+        .cell-path { font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    </style>
+</body>
+</html>

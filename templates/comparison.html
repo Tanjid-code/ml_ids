@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparison - IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item active"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>⚖️ Detection Comparison</h1>
+                <p class="subtitle">Rule-Based vs ML Model — Who detects what</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="compRefreshBtn">🔄 Refresh</button>
+                <button class="btn btn-danger btn-sm" id="compClearBtn">🗑️ Clear</button>
+            </div>
+        </header>
+
+        <!-- SUMMARY CARDS -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>Total Analyzed</h3>
+                        <p class="stat-number" id="compTotal">0</p>
+                        <span class="stat-label">Requests</span>
+                    </div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-icon">🤝</div>
+                    <div class="stat-info">
+                        <h3>Both Detected</h3>
+                        <p class="stat-number" id="compBoth">0</p>
+                        <span class="stat-label">Rule + ML agree</span>
+                    </div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-info">
+                        <h3>Rule Only</h3>
+                        <p class="stat-number" id="compRuleOnly">0</p>
+                        <span class="stat-label">Rule caught, ML missed</span>
+                    </div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-info">
+                        <h3>ML Only</h3>
+                        <p class="stat-number" id="compMLOnly">0</p>
+                        <span class="stat-label">ML caught, Rule missed</span>
+                    </div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Both Normal</h3>
+                        <p class="stat-number" id="compBothNormal">0</p>
+                        <span class="stat-label">Both agree: clean</span>
+                    </div>
+                </div>
+                <div class="stat-card connections">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <h3>Agreement Rate</h3>
+                        <p class="stat-number" id="compAgreeRate">0%</p>
+                        <span class="stat-label">Both agree</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DETECTION RATES -->
+        <section class="alerts-section" style="margin-bottom:20px">
+            <h2 style="margin-bottom:20px">📈 Detection Rate Comparison</h2>
+            <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+                <div class="summary-card">
+                    <h3 style="color:var(--info)">📏 Rule-Based Detection</h3>
+                    <p style="font-size:36px;font-weight:700;color:var(--info);margin:10px 0">
+                        <span id="compRuleRate">0%</span>
+                    </p>
+                    <p style="color:var(--text-secondary)">
+                        Detections: <strong id="compRuleDet">0</strong>
+                    </p>
+                    <p style="color:var(--text-secondary);font-size:13px;margin-top:10px">
+                        ✅ Known attack patterns<br>
+                        ✅ Provides severity classification<br>
+                        ❌ Misses novel attacks
+                    </p>
+                </div>
+                <div class="summary-card">
+                    <h3 style="color:var(--primary)">🤖 ML Model Detection</h3>
+                    <p style="font-size:36px;font-weight:700;color:var(--primary);margin:10px 0">
+                        <span id="compMLRate">0%</span>
+                    </p>
+                    <p style="color:var(--text-secondary)">
+                        Detections: <strong id="compMLDet">0</strong>
+                    </p>
+                    <p style="color:var(--text-secondary);font-size:13px;margin-top:10px">
+                        ✅ Detects anomalies<br>
+                        ✅ Pattern-based learning<br>
+                        ⚠️ Features approximated
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VENN DIAGRAM -->
+        <section class="alerts-section" style="margin-bottom:20px">
+            <h2 style="margin-bottom:20px">🔵 Detection Overlap</h2>
+            <div class="venn-container">
+                <div class="venn-left">
+                    <div class="venn-number" id="vennRuleOnly">0</div>
+                    <div class="venn-label">📏 Rule Only</div>
+                    <div class="venn-hint">Caught by rules<br>missed by ML</div>
+                </div>
+                <div class="venn-center">
+                    <div class="venn-number" id="vennBoth">0</div>
+                    <div class="venn-label">🤝 Both Detected</div>
+                    <div class="venn-hint">High confidence<br>threats</div>
+                </div>
+                <div class="venn-right">
+                    <div class="venn-number" id="vennMLOnly">0</div>
+                    <div class="venn-label">🤖 ML Only</div>
+                    <div class="venn-hint">Caught by ML<br>missed by rules</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FILTERS -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Show</label>
+                    <select id="compFilter" class="filter-select">
+                        <option value="all">All Requests</option>
+                        <option value="both">Both Detected</option>
+                        <option value="rule_only">Rule Only</option>
+                        <option value="ml_only">ML Only</option>
+                        <option value="both_normal">Both Normal</option>
+                        <option value="disagree">Disagreements</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Per Page</label>
+                    <select id="compLimit" class="filter-select">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-info btn-sm" id="compApplyFilter">🔍 Apply</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMPARISON TABLE -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>📋 Request-by-Request</h2>
+                <span id="compCount" class="subtitle">0 entries</span>
+            </div>
+            <div class="alerts-table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Source IP</th>
+                            <th>Method</th>
+                            <th>Path</th>
+                            <th>📏 Rule</th>
+                            <th>🤖 ML</th>
+                            <th>ML Confidence</th>
+                            <th>Severity</th>
+                            <th>Agreement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">⚖️</span>
+                                    <p>No comparison data yet</p>
+                                    <p class="no-data-hint">Data appears as external requests come in</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="compPagination" style="display:none">
+                <button class="btn btn-secondary btn-sm" id="compPrevPage">← Previous</button>
+                <span id="compPageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary btn-sm" id="compNextPage">Next →</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    let compPage = 1;
+    let compTotalPages = 1;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        currentPage = 'comparison';
+        loadCompSummary();
+        loadCompLog();
+        updateNotifCount();
+
+        setInterval(() => { loadCompSummary(); loadCompLog(); }, 5000);
+
+        on('compRefreshBtn', 'click', () => {
+            loadCompSummary(); loadCompLog();
+            showToast('Refreshed', 'info');
+        });
+        on('compClearBtn', 'click', async () => {
+            if (!confirm('Clear comparison log?')) return;
+            await fetch('/api/comparison/clear', { method: 'POST' });
+            loadCompSummary(); loadCompLog();
+            showToast('Cleared', 'success');
+        });
+        on('compApplyFilter', 'click', () => { compPage = 1; loadCompLog(); });
+        on('compPrevPage', 'click', () => { if (compPage > 1) { compPage--; loadCompLog(); } });
+        on('compNextPage', 'click', () => { if (compPage < compTotalPages) { compPage++; loadCompLog(); } });
+    });
+
+    async function loadCompSummary() {
+        try {
+            const r = await fetch('/api/comparison/summary');
+            const s = await r.json();
+            setEl('compTotal', s.total || 0);
+            setEl('compBoth', s.both_detected || 0);
+            setEl('compRuleOnly', s.only_rule || 0);
+            setEl('compMLOnly', s.only_ml || 0);
+            setEl('compBothNormal', s.both_normal || 0);
+            setEl('compAgreeRate', (s.agreement_rate || 0) + '%');
+            setEl('compRuleRate', (s.rule_detection_rate || 0) + '%');
+            setEl('compMLRate', (s.ml_detection_rate || 0) + '%');
+            setEl('compRuleDet', s.rule_total_detections || 0);
+            setEl('compMLDet', s.ml_total_detections || 0);
+            setEl('vennRuleOnly', s.only_rule || 0);
+            setEl('vennBoth', s.both_detected || 0);
+            setEl('vennMLOnly', s.only_ml || 0);
+        } catch (e) { console.error('loadCompSummary:', e); }
+    }
+
+    async function loadCompLog() {
+        try {
+            const filter = document.getElementById('compFilter').value;
+            const limit  = document.getElementById('compLimit').value;
+
+            const r    = await fetch(`/api/comparison/log?limit=${limit}&page=${compPage}`);
+            const resp = await r.json();
+            let logs   = resp.logs || resp;
+
+            compTotalPages = resp.total_pages || 1;
+            compPage       = resp.page || 1;
+
+            // Client filter
+            if (filter === 'both')        logs = logs.filter(l => l.both_detected);
+            else if (filter === 'rule_only') logs = logs.filter(l => l.only_rule);
+            else if (filter === 'ml_only')   logs = logs.filter(l => l.only_ml);
+            else if (filter === 'both_normal') logs = logs.filter(l => l.both_normal);
+            else if (filter === 'disagree')  logs = logs.filter(l => !l.agreement);
+
+            setEl('compCount', `${resp.total || logs.length} entries`);
+
+            const pag = document.getElementById('compPagination');
+            if (compTotalPages > 1) {
+                pag.style.display = 'flex';
+                setEl('compPageInfo', `Page ${compPage} of ${compTotalPages}`);
+            } else {
+                pag.style.display = 'none';
+            }
+
+            const tbody = document.getElementById('compBody');
+            if (!logs.length) {
+                tbody.innerHTML = '<tr class="no-data-row"><td colspan="9"><div class="no-data"><span class="no-data-icon">⚖️</span><p>No data</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(l => {
+                const time = new Date(l.timestamp).toLocaleTimeString();
+                const ruleHtml = l.rule_detected
+                    ? `<span class="severity-badge severity-high">⚠️ ${escHtml(l.rule_threat_type || 'THREAT')}</span>`
+                    : '<span class="severity-badge severity-low">✅ NORMAL</span>';
+                const mlHtml = l.ml_detected
+                    ? '<span class="severity-badge severity-high">⚠️ ATTACK</span>'
+                    : '<span class="severity-badge severity-low">✅ NORMAL</span>';
+                const agreeHtml = l.agreement
+                    ? '<span class="severity-badge severity-low">🤝 Agree</span>'
+                    : '<span class="severity-badge severity-medium">⚡ Disagree</span>';
+                const sevHtml = l.final_severity && l.final_severity !== 'none'
+                    ? `<span class="severity-badge severity-${l.final_severity}">${l.final_severity.toUpperCase()}</span>`
+                    : '<span class="severity-badge severity-low">-</span>';
+
+                let bg = '';
+                if (l.both_detected) bg = 'style="background:rgba(239,68,68,0.07)"';
+                else if (l.only_ml || l.only_rule) bg = 'style="background:rgba(245,158,11,0.07)"';
+
+                return `
+                <tr ${bg}>
+                    <td class="cell-time">${time}</td>
+                    <td><span class="ip-link" onclick="showIPDetails('${escHtml(l.source_ip)}')">${escHtml(l.source_ip)}</span></td>
+                    <td><span class="rule-badge">${l.method || 'GET'}</span></td>
+                    <td class="cell-path" title="${escHtml(l.path)}">${escHtml(l.path)}</td>
+                    <td>${ruleHtml}</td>
+                    <td>${mlHtml}</td>
+                    <td><span style="font-weight:600;color:${l.ml_confidence >= 80 ? 'var(--success)' : 'var(--warning)'}">${l.ml_confidence || 0}%</span></td>
+                    <td>${sevHtml}</td>
+                    <td>${agreeHtml}</td>
+                </tr>`;
+            }).join('');
+        } catch (e) { console.error('loadCompLog:', e); }
+    }
+    </script>
+</body>
+</html>

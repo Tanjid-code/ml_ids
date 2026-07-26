@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help - IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item active"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>❓ Help & Documentation</h1>
+                <p class="subtitle">Learn how to use the IDS system</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CAN DO -->
+        <section class="help-section">
+            <h2>✅ What You CAN Do</h2>
+            <div id="canDoContent" class="help-content">
+                <div class="no-data"><span class="no-data-icon">⏳</span><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- CANNOT DO -->
+        <section class="help-section">
+            <h2>❌ What You CANNOT Do</h2>
+            <div id="cannotDoContent" class="help-content">
+                <div class="no-data"><span class="no-data-icon">⏳</span><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- HOW DETECTION WORKS -->
+        <section class="help-section">
+            <h2>🔬 How Detection Works</h2>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <span class="tip-icon">📏</span>
+                    <div>
+                        <h4>Rule-Based Detection (Signatures)</h4>
+                        <p>264+ regex rules match known attack patterns in request data, headers, and payloads.
+                           Covers SQL Injection, XSS, and 13 other categories.
+                           <strong>Rules provide the severity classification</strong> (critical/high/medium/low).</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">🤖</span>
+                    <div>
+                        <h4>ML Model Detection (XGBoost)</h4>
+                        <p>An XGBoost model trained on the UNSW-NB15 dataset classifies traffic as
+                           <strong>ATTACK or NORMAL</strong>. It uses 39 network features extracted
+                           from each request via psutil and HTTP data. The model does NOT determine
+                           severity — that comes from rules.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">⚖️</span>
+                    <div>
+                        <h4>Combined Detection</h4>
+                        <p><strong>Both Detected:</strong> High confidence threat — rules provide severity.<br>
+                           <strong>Rule Only:</strong> Known attack pattern, ML missed it.<br>
+                           <strong>ML Only:</strong> Novel anomaly detected — classified as medium severity for investigation.<br>
+                           <strong>Both Normal:</strong> Clean traffic confirmed by both systems.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">📈</span>
+                    <div>
+                        <h4>Threshold Detection</h4>
+                        <p>Monitors rates: 100+ requests = DDoS, 5+ failed logins = Brute Force,
+                           10+ unique ports = Port Scan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="help-section">
+            <h2>❓ Frequently Asked Questions</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h4>Q: Why does ML show everything as "medium" severity?</h4>
+                    <p>A: The ML model only predicts <strong>ATTACK or NORMAL</strong>.
+                       It does not classify severity. Severity comes from rule-based detection.
+                       If only ML detects a threat (rules miss it), it defaults to "medium" for investigation.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Q: What does "Data Quality" mean on ML predictions?</h4>
+                    <p>A: The model needs 39 network features. Some (like TTL, jitter) can only be measured
+                       at packet level, so they are estimated. Data Quality shows what percentage of features
+                       are real vs estimated. Higher = more reliable prediction.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Q: Why are internal IPs (127.0.0.1) skipped by ML?</h4>
+                    <p>A: Internal/localhost traffic is the IDS system itself making API calls.
+                       Predicting on these would flood the system with false positives.
+                       Only external IPs are analyzed by the ML model.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Q: How do I generate a PDF report?</h4>
+                    <p>A: Go to Reports page, select "PDF Report" format, set your filters, and click Generate.
+                       Requires the fpdf2 package (pip install fpdf2).</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Q: What is the Comparison page?</h4>
+                    <p>A: It shows a side-by-side comparison of rule-based and ML detections for each request.
+                       You can see where they agree, where rules catch something ML misses, and vice versa.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Q: Can the ML model make mistakes?</h4>
+                    <p>A: Yes. The model uses approximated features and may produce false positives or miss attacks.
+                       That's why we use it alongside rules — rules provide the authoritative classification,
+                       ML provides supplementary anomaly detection.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUICK TIPS -->
+        <section class="help-section">
+            <h2>💡 Quick Tips</h2>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <span class="tip-icon">🔔</span>
+                    <div>
+                        <h4>Real-Time Alerts</h4>
+                        <p>Critical and high severity alerts play a sound notification.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">🌐</span>
+                    <div>
+                        <h4>Click Any IP Address</h4>
+                        <p>Click any IP to see full details: traffic stats, attack history,
+                           detection sources, and block/whitelist options.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">🌙</span>
+                    <div>
+                        <h4>Dark / Light Mode</h4>
+                        <p>Toggle theme using the button at bottom of sidebar. Preference is saved.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">📄</span>
+                    <div>
+                        <h4>PDF Reports</h4>
+                        <p>Generate professional PDF reports with summary, charts, and alert details.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        currentPage = 'help';
+        updateNotifCount();
+        loadCanDo();
+        loadCannotDo();
+    });
+
+    async function loadCanDo() {
+        const c = document.getElementById('canDoContent');
+        try {
+            const r = await fetch('/api/user-actions/can-do');
+            if (!r.ok) throw new Error();
+            const data = await r.json();
+            if (!Object.keys(data).length) { c.innerHTML = '<div class="no-data"><p>No data</p></div>'; return; }
+            c.innerHTML = Object.entries(data).map(([cat, actions]) => `
+                <div class="action-category">
+                    <h3>${cat.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                    <div class="action-list">
+                        ${actions.map(a => `
+                            <div class="action-item can-do">
+                                <span class="action-icon">✅</span>
+                                <div>
+                                    <h4>${a.action}</h4>
+                                    <p>${a.description}</p>
+                                    <small><strong>How:</strong> ${a.how_to}</small>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed to load</p></div>'; }
+    }
+
+    async function loadCannotDo() {
+        const c = document.getElementById('cannotDoContent');
+        try {
+            const r = await fetch('/api/user-actions/cannot-do');
+            if (!r.ok) throw new Error();
+            const data = await r.json();
+            if (!Object.keys(data).length) { c.innerHTML = '<div class="no-data"><p>No data</p></div>'; return; }
+            c.innerHTML = Object.entries(data).map(([cat, items]) => `
+                <div class="action-category">
+                    <h3>${cat.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
+                    <div class="action-list">
+                        ${items.map(i => `
+                            <div class="action-item cannot-do">
+                                <span class="action-icon">❌</span>
+                                <div>
+                                    <h4>${i.limitation}</h4>
+                                    <p><strong>Why:</strong> ${i.reason}</p>
+                                    <small><strong>Workaround:</strong> ${i.workaround}</small>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed to load</p></div>'; }
+    }
+    </script>
+</body>
+</html>

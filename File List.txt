@@ -1,0 +1,45 @@
+I:\Sumaiya\ids-project\
+├── app.py                              ← File 12
+├── config.py                           ← File 1
+├── requirements.txt                    ← File 2
+├── unsw_nb15_xgb_model.pkl             ← YOUR MODEL
+├── simulate_attacks.py                 ← Keep from before
+│
+├── modules/
+│   ├── __init__.py                     ← File 3
+│   ├── alert_manager.py                ← File 4
+│   ├── ml_detector.py                  ← File 5
+│   ├── traffic_monitor.py              ← File 6
+│   ├── network_scanner.py              ← File 7
+│   ├── report_generator.py             ← File 8
+│   ├── notification_service.py         ← File 9
+│   ├── ai_explainer.py                 ← File 10
+│   ├── user_actions.py                 ← File 11
+│   └── threat_detector.py              ← KEEP EXISTING
+│
+├── templates/
+│   ├── index.html                      ← File 13
+│   ├── alerts.html                     ← File 14
+│   ├── traffic.html                    ← File 15
+│   ├── ml_predictions.html             ← File 16
+│   ├── comparison.html                 ← File 17
+│   ├── reports.html                    ← File 18
+│   ├── settings.html                   ← File 19
+│   └── help.html                       ← File 20
+│
+├── static/
+│   ├── css/
+│   │   └── style.css                   ← File 21
+│   └── js/
+│       └── dashboard.js                ← File 22
+│
+└── data/                               ← Auto-created
+    ├── alerts.json
+    ├── blocked_ips.json
+    ├── whitelist.json
+    ├── notifications.json
+    ├── feedback.json
+    ├── auto_block_settings.json
+    ├── traffic_log.json
+    ├── ip_statistics.json
+    └── reports/

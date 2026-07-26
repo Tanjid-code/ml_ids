@@ -1,0 +1,922 @@
+{
+  "ip_stats": {
+    "127.0.0.1": {
+      "ip": "127.0.0.1",
+      "total_requests": 600,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 600,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:09:55.119819",
+      "last_seen": "2026-07-25T21:24:59.309024",
+      "paths_visited": [
+        "/api/reports/summary",
+        "/settings",
+        "/api/ip/blocked",
+        "/api/ip/whitelist",
+        "/api/system/info",
+        "/api/network/interfaces",
+        "/api/ip/auto-block",
+        "/api/monitor/start",
+        "/api/ip/details/127.0.0.1",
+        "/api/explain/23",
+        "/api/alerts/22",
+        "/ml-predictions",
+        "/help",
+        "/api/user-actions/can-do",
+        "/api/user-actions/cannot-do",
+        "/api/explain/69",
+        "/api/alerts/stats",
+        "/api/network/stats",
+        "/api/alerts/69",
+        "/api/monitor/status",
+        "/api/notifications/count",
+        "/api/alerts",
+        "/api/network/connections",
+        "/",
+        "/api/monitor/stop",
+        "/traffic",
+        "/api/traffic/summary",
+        "/api/traffic/top-talkers",
+        "/api/traffic",
+        "/alerts"
+      ],
+      "methods_used": [
+        "GET",
+        "POST"
+      ],
+      "user_agents": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Sa"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 8,
+      "is_threat": true,
+      "classification": "attacker",
+      "requests_per_min": 3,
+      "status_codes": {
+        "200": 600
+      }
+    },
+    "185.220.101.7": {
+      "ip": "185.220.101.7",
+      "total_requests": 3,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 3,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:10:51.784027",
+      "last_seen": "2026-07-25T21:11:28.054314",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "playwright/1.20.0",
+        "python-requests/2.32.5",
+        "medusa/2.2"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 3,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 3,
+      "status_codes": {
+        "200": 3
+      }
+    },
+    "192.168.1.102": {
+      "ip": "192.168.1.102",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:10:56.097268",
+      "last_seen": "2026-07-25T21:12:08.825696",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "curl/7.68.0",
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "62.210.115.89": {
+      "ip": "62.210.115.89",
+      "total_requests": 3,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 3,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:00.147319",
+      "last_seen": "2026-07-25T21:13:54.841285",
+      "paths_visited": [
+        "/",
+        "/.DS_Store"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 3,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 2,
+      "status_codes": {
+        "200": 3
+      }
+    },
+    "10.0.0.1": {
+      "ip": "10.0.0.1",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:04.780069",
+      "last_seen": "2026-07-25T21:11:04.780069",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "192.168.10.2": {
+      "ip": "192.168.10.2",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:09.143614",
+      "last_seen": "2026-07-25T21:13:12.726720",
+      "paths_visited": [
+        "/",
+        "/secrets.yml"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "192.168.10.3": {
+      "ip": "192.168.10.3",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:13.507946",
+      "last_seen": "2026-07-25T21:12:46.461554",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5",
+        "OWASP ZAP/2.12.0"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "203.0.113.3": {
+      "ip": "203.0.113.3",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:18.493345",
+      "last_seen": "2026-07-25T21:11:18.493345",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "203.0.113.1": {
+      "ip": "203.0.113.1",
+      "total_requests": 3,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 3,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:32.560202",
+      "last_seen": "2026-07-25T21:14:03.619300",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 3,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 2,
+      "status_codes": {
+        "200": 3
+      }
+    },
+    "172.16.0.3": {
+      "ip": "172.16.0.3",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:37.171520",
+      "last_seen": "2026-07-25T21:11:37.171520",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "198.51.100.1": {
+      "ip": "198.51.100.1",
+      "total_requests": 3,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 3,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:42.200156",
+      "last_seen": "2026-07-25T21:12:23.335780",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5",
+        "acunetix-wvs-scanner/10.0"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 3,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 3,
+      "status_codes": {
+        "200": 3
+      }
+    },
+    "192.168.1.101": {
+      "ip": "192.168.1.101",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:46.286471",
+      "last_seen": "2026-07-25T21:13:49.974077",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "185.220.101.6": {
+      "ip": "185.220.101.6",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:50.760202",
+      "last_seen": "2026-07-25T21:11:50.760202",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "192.168.1.100": {
+      "ip": "192.168.1.100",
+      "total_requests": 3,
+      "total_bytes_in": 49,
+      "total_bytes_out": 0,
+      "packets_in": 3,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:11:55.518977",
+      "last_seen": "2026-07-25T21:14:31.214343",
+      "paths_visited": [
+        "/",
+        "/login"
+      ],
+      "methods_used": [
+        "GET",
+        "POST"
+      ],
+      "user_agents": [
+        "havij/1.17",
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 3,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 3
+      }
+    },
+    "62.210.115.88": {
+      "ip": "62.210.115.88",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:04.719054",
+      "last_seen": "2026-07-25T21:12:27.977648",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5",
+        "ncrack/0.7"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 2,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "91.108.4.1": {
+      "ip": "91.108.4.1",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:13.711290",
+      "last_seen": "2026-07-25T21:12:55.612315",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 2,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "198.20.69.74": {
+      "ip": "198.20.69.74",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:18.361571",
+      "last_seen": "2026-07-25T21:14:40.681543",
+      "paths_visited": [
+        "/backup.sql",
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "77.88.8.2": {
+      "ip": "77.88.8.2",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:32.491165",
+      "last_seen": "2026-07-25T21:12:32.491165",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "185.220.101.5": {
+      "ip": "185.220.101.5",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:37.417784",
+      "last_seen": "2026-07-25T21:12:37.417784",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "203.0.113.2": {
+      "ip": "203.0.113.2",
+      "total_requests": 2,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 2,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:42.113769",
+      "last_seen": "2026-07-25T21:13:31.128321",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 2,
+      "is_threat": true,
+      "classification": "suspicious",
+      "requests_per_min": 2,
+      "status_codes": {
+        "200": 2
+      }
+    },
+    "10.0.0.3": {
+      "ip": "10.0.0.3",
+      "total_requests": 5,
+      "total_bytes_in": 70,
+      "total_bytes_out": 0,
+      "packets_in": 5,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:12:51.101518",
+      "last_seen": "2026-07-25T21:14:21.836409",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET",
+        "POST"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5",
+        "selenium webdriver"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 5,
+      "is_threat": true,
+      "classification": "attacker",
+      "requests_per_min": 3,
+      "status_codes": {
+        "200": 5
+      }
+    },
+    "62.210.115.87": {
+      "ip": "62.210.115.87",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:13:08.150407",
+      "last_seen": "2026-07-25T21:13:08.150407",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "45.33.32.156": {
+      "ip": "45.33.32.156",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:13:16.841995",
+      "last_seen": "2026-07-25T21:13:16.841995",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "() { :; }; echo shellshock_test"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "45.33.32.158": {
+      "ip": "45.33.32.158",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:13:26.860739",
+      "last_seen": "2026-07-25T21:13:26.860739",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "77.88.8.3": {
+      "ip": "77.88.8.3",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:13:35.589673",
+      "last_seen": "2026-07-25T21:13:35.589673",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "172.16.0.1": {
+      "ip": "172.16.0.1",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:13:40.541036",
+      "last_seen": "2026-07-25T21:13:40.541036",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "77.88.8.1": {
+      "ip": "77.88.8.1",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:14:08.518003",
+      "last_seen": "2026-07-25T21:14:08.518003",
+      "paths_visited": [
+        "/"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "198.20.69.75": {
+      "ip": "198.20.69.75",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:14:17.400459",
+      "last_seen": "2026-07-25T21:14:17.400459",
+      "paths_visited": [
+        "/database.bak"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "8.8.4.3": {
+      "ip": "8.8.4.3",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:14:26.575151",
+      "last_seen": "2026-07-25T21:14:26.575151",
+      "paths_visited": [
+        "/.env"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    },
+    "10.10.10.2": {
+      "ip": "10.10.10.2",
+      "total_requests": 1,
+      "total_bytes_in": 0,
+      "total_bytes_out": 0,
+      "packets_in": 1,
+      "packets_out": 0,
+      "first_seen": "2026-07-25T21:14:35.684218",
+      "last_seen": "2026-07-25T21:14:35.684218",
+      "paths_visited": [
+        "/config.yaml"
+      ],
+      "methods_used": [
+        "GET"
+      ],
+      "user_agents": [
+        "python-requests/2.32.5"
+      ],
+      "ports_accessed": [
+        5000
+      ],
+      "alert_count": 1,
+      "is_threat": true,
+      "classification": "low_risk",
+      "requests_per_min": 1,
+      "status_codes": {
+        "200": 1
+      }
+    }
+  }
+}

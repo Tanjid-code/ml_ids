@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts - IDS</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item active"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>🚨 Alert Management</h1>
+                <p class="subtitle">View, filter, and manage security alerts</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- FILTERS -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Severity</label>
+                    <select id="severityFilter" class="filter-select">
+                        <option value="">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="new">New</option>
+                        <option value="acknowledged">Acknowledged</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="false_positive">False Positive</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Type</label>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="sql_injection">SQL Injection</option>
+                        <option value="xss">XSS</option>
+                        <option value="port_scan">Port Scan</option>
+                        <option value="brute_force">Brute Force</option>
+                        <option value="ddos">DDoS</option>
+                        <option value="suspicious_port">Suspicious Port</option>
+                        <option value="command_injection">Command Injection</option>
+                        <option value="path_traversal">Path Traversal</option>
+                        <option value="file_inclusion">File Inclusion</option>
+                        <option value="shellshock">Shellshock</option>
+                        <option value="scanner_detection">Scanner Detection</option>
+                        <option value="malware_signatures">Malware Signatures</option>
+                        <option value="xml_injection">XML Injection</option>
+                        <option value="ldap_injection">LDAP Injection</option>
+                        <option value="sensitive_data">Sensitive Data</option>
+                        <option value="ml_anomaly">ML Anomaly</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Search IP</label>
+                    <input type="text" id="ipSearch" class="filter-input"
+                           placeholder="Enter IP address...">
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-info btn-sm" id="applyFilters">🔍 Apply</button>
+                    <button class="btn btn-secondary btn-sm" id="clearFilters">✕ Clear</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BULK ACTIONS -->
+        <section class="bulk-actions">
+            <div class="bulk-left">
+                <input type="checkbox" id="selectAll" class="alert-checkbox">
+                <label for="selectAll">Select All</label>
+                <span id="selectedCount">(0 selected)</span>
+            </div>
+            <div class="bulk-right">
+                <button class="btn btn-success btn-sm" id="bulkAcknowledge" disabled>
+                    ✓ Acknowledge
+                </button>
+                <button class="btn btn-warning btn-sm" id="bulkFalsePositive" disabled>
+                    ⚠️ False Positive
+                </button>
+                <button class="btn btn-danger btn-sm" id="bulkDelete" disabled>
+                    🗑️ Delete
+                </button>
+            </div>
+        </section>
+
+        <!-- ALERTS TABLE -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>📋 All Alerts</h2>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm" id="refreshBtn">🔄 Refresh</button>
+                    <button class="btn btn-warning btn-sm" id="clearBtn">🗑️ Clear All</button>
+                </div>
+            </div>
+
+            <div class="alerts-table-container">
+                <table class="alerts-table" id="alertsTable">
+                    <thead>
+                        <tr>
+                            <th width="40">
+                                <input type="checkbox" id="headerCheckbox" class="alert-checkbox">
+                            </th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Source IP</th>
+                            <th>Destination</th>
+                            <th>Severity</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">🔍</span>
+                                    <p>No alerts found</p>
+                                    <p class="no-data-hint">Use filters above or wait for new alerts</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="alertsPagination">
+                <button class="btn btn-secondary btn-sm" id="prevPage">← Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary btn-sm" id="nextPage">Next →</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALS -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🔍 Alert Details</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="alertModalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="explainModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🤖 AI Threat Explanation</h2>
+                <button class="close-btn" id="closeExplainModal">&times;</button>
+            </div>
+            <div class="modal-body" id="explainModalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            currentPage = 'alerts';
+            loadAlerts();
+            updateNotifCount();
+        });
+    </script>
+</body>
+</html>

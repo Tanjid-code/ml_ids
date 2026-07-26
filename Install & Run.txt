@@ -1,0 +1,11 @@
+# Install dependencies
+C:/Users/Tanjid/AppData/Local/Programs/Python/Python312/python.exe -m pip install flask flask-cors flask-socketio psutil requests eventlet xgboost numpy scikit-learn fpdf2
+
+# Delete old data folder to start fresh
+Remove-Item -Recurse -Force I:\Sumaiya\ids-project\data
+
+# Run app
+C:/Users/Tanjid/AppData/Local/Programs/Python/Python312/python.exe app.py
+
+# In second terminal - run attacks
+C:/Users/Tanjid/AppData/Local/Programs/Python/Python312/python.exe simulate_attacks.py

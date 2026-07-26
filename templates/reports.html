@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item active"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>📄 Reports</h1>
+                <p class="subtitle">Generate and download security reports</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- REPORT GENERATOR -->
+        <section class="report-generator">
+            <h2>📝 Generate New Report</h2>
+            <div class="report-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Report Format</label>
+                        <select id="reportType" class="filter-select">
+                            <option value="json">JSON Report</option>
+                            <option value="csv">CSV Report</option>
+                            <option value="pdf">PDF Report</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate" class="filter-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="endDate" class="filter-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select id="reportSeverity" class="filter-select">
+                            <option value="">All Severities</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-success" id="generateReport">📊 Generate Report</button>
+            </div>
+        </section>
+
+        <!-- EXECUTIVE SUMMARY -->
+        <section class="summary-section">
+            <h2>📋 Executive Summary</h2>
+            <div id="summaryContent" class="summary-content">
+                <div class="no-data"><span class="no-data-icon">📊</span><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- SAVED REPORTS -->
+        <section class="saved-reports">
+            <div class="section-header">
+                <h2>📁 Saved Reports</h2>
+                <button class="btn btn-secondary btn-sm" id="refreshReports">🔄 Refresh</button>
+            </div>
+            <div class="reports-table-container alerts-table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsBody">
+                        <tr class="no-data-row">
+                            <td colspan="5">
+                                <div class="no-data"><span class="no-data-icon">📁</span><p>No saved reports</p></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        currentPage = 'reports';
+        loadSummary();
+        loadSavedReports();
+        updateNotifCount();
+
+        // Set max date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').max = today;
+        document.getElementById('endDate').max = today;
+
+        on('generateReport', 'click', generateReport);
+        on('refreshReports', 'click', () => { loadSavedReports(); showToast('Refreshed', 'info'); });
+    });
+
+    async function loadSummary() {
+        try {
+            const r = await fetch('/api/reports/summary');
+            if (!r.ok) throw new Error('Failed');
+            const s = await r.json();
+            const c = document.getElementById('summaryContent');
+            const tb = s.time_based || {};
+            const ov = s.overall_stats || {};
+            const tt = s.top_threat_types || {};
+            const si = s.top_source_ips || {};
+            const rc = s.recommendations || [];
+
+            c.innerHTML = `
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>📊 Overall</h3>
+                        <p>Total: <strong>${ov.total_alerts || 0}</strong></p>
+                        <p>Critical: <strong class="text-critical">${ov.critical || 0}</strong></p>
+                        <p>High: <strong class="text-high">${ov.high || 0}</strong></p>
+                        <p>Medium: <strong class="text-medium">${ov.medium || 0}</strong></p>
+                        <p>Low: <strong class="text-low">${ov.low || 0}</strong></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>📅 Time-Based</h3>
+                        <p>Last 24h: <strong>${tb.last_24_hours || 0}</strong></p>
+                        <p>Last 7d: <strong>${tb.last_7_days || 0}</strong></p>
+                        <p>Last 30d: <strong>${tb.last_30_days || 0}</strong></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>🎯 Top Threats</h3>
+                        ${Object.entries(tt).length > 0
+                            ? Object.entries(tt).map(([t,c]) => `<p>${t.replace(/_/g,' ')}: <strong>${c}</strong></p>`).join('')
+                            : '<p style="color:var(--text-muted)">No data</p>'}
+                    </div>
+                    <div class="summary-card">
+                        <h3>🌐 Top IPs</h3>
+                        ${Object.entries(si).length > 0
+                            ? Object.entries(si).map(([ip,c]) => `<p><span class="ip-link" onclick="showIPDetails('${ip}')">${ip}</span>: <strong>${c}</strong></p>`).join('')
+                            : '<p style="color:var(--text-muted)">No data</p>'}
+                    </div>
+                </div>
+                ${rc.length > 0 ? `<div class="recommendations"><h3>💡 Recommendations</h3><ul>${rc.map(r => `<li>${r}</li>`).join('')}</ul></div>` : ''}
+            `;
+        } catch (e) {
+            console.error('loadSummary:', e);
+            document.getElementById('summaryContent').innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed to load</p></div>';
+        }
+    }
+
+    async function loadSavedReports() {
+        try {
+            const r = await fetch('/api/reports/list');
+            if (!r.ok) throw new Error('Failed');
+            const reports = await r.json();
+            const tbody = document.getElementById('reportsBody');
+
+            if (!reports.length) {
+                tbody.innerHTML = '<tr class="no-data-row"><td colspan="5"><div class="no-data"><span class="no-data-icon">📁</span><p>No saved reports</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = reports.map(rp => `
+                <tr>
+                    <td><strong>${rp.filename}</strong></td>
+                    <td><span class="badge">${rp.type}</span></td>
+                    <td>${fmtBytes(rp.size)}</td>
+                    <td>${new Date(rp.created).toLocaleString()}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn details" onclick="downloadReport('${rp.filename}')" title="Download">⬇️</button>
+                            <button class="action-btn block-ip" onclick="deleteReport('${rp.filename}')" title="Delete">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            console.error('loadSavedReports:', e);
+        }
+    }
+
+    async function generateReport() {
+        const type     = document.getElementById('reportType').value;
+        const startD   = document.getElementById('startDate').value;
+        const endD     = document.getElementById('endDate').value;
+        const severity = document.getElementById('reportSeverity').value;
+
+        if (startD && endD && startD > endD) {
+            showToast('Start date cannot be after end date', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('generateReport');
+        btn.disabled = true;
+        btn.textContent = '⏳ Generating...';
+
+        try {
+            const r = await fetch('/api/reports/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type, start_date: startD || null,
+                    end_date: endD || null,
+                    severity: severity || null,
+                }),
+            });
+
+            if (!r.ok) throw new Error('Failed');
+            const result = await r.json();
+
+            if (result.error) {
+                showToast(result.error, 'error');
+                return;
+            }
+
+            showToast('Report generated!', 'success');
+            loadSavedReports();
+
+            if (result.filename && confirm('Download now?')) {
+                downloadReport(result.filename);
+            }
+        } catch (e) {
+            showToast('Failed to generate report', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📊 Generate Report';
+        }
+    }
+
+    function downloadReport(filename) {
+        if (!filename) return;
+        filename = filename.replace(/[/\\]/g, '');
+        window.location.href = `/api/reports/download/${filename}`;
+    }
+
+    async function deleteReport(filename) {
+        if (!confirm(`Delete report: ${filename}?`)) return;
+        try {
+            filename = filename.replace(/[/\\]/g, '');
+            const r = await fetch(`/api/reports/${filename}`, { method: 'DELETE' });
+            if (r.ok) {
+                showToast('Report deleted', 'success');
+                loadSavedReports();
+            } else {
+                showToast('Failed to delete', 'error');
+            }
+        } catch (e) { showToast('Failed to delete', 'error'); }
+    }
+    </script>
+</body>
+</html>

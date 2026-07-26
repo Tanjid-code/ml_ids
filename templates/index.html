@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDS - Advanced Intrusion Detection System</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active">
+                <a href="/">📊 Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a href="/alerts">🚨 Alerts</a>
+            </li>
+            <li class="nav-item">
+                <a href="/traffic">🌐 Traffic</a>
+            </li>
+            <li class="nav-item">
+                <a href="/ml-predictions">🤖 ML Predictions</a>
+            </li>
+            <li class="nav-item">
+                <a href="/comparison">⚖️ Comparison</a>
+            </li>
+            <li class="nav-item">
+                <a href="/reports">📄 Reports</a>
+            </li>
+            <li class="nav-item">
+                <a href="/settings">⚙️ Settings</a>
+            </li>
+            <li class="nav-item">
+                <a href="/help">❓ Help</a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>Security Dashboard</h1>
+                <p class="subtitle">
+                    Real-time Network Monitoring &amp; Threat Detection
+                </p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count"
+                          id="notifCount"
+                          style="display:none">0</span>
+                </div>
+                <div class="monitor-controls">
+                    <button id="startBtn" class="btn btn-success">
+                        <span class="btn-icon">▶</span> Start Monitoring
+                    </button>
+                    <button id="stopBtn" class="btn btn-danger">
+                        <span class="btn-icon">⏸</span> Stop
+                    </button>
+                </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Stopped</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- STATS CARDS -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>Total Alerts</h3>
+                        <p class="stat-number" id="totalAlerts">0</p>
+                        <span class="stat-label">All time</span>
+                    </div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-icon">🔴</div>
+                    <div class="stat-info">
+                        <h3>Critical</h3>
+                        <p class="stat-number" id="criticalAlerts">0</p>
+                        <span class="stat-label">Immediate action</span>
+                    </div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-icon">🟠</div>
+                    <div class="stat-info">
+                        <h3>High</h3>
+                        <p class="stat-number" id="highAlerts">0</p>
+                        <span class="stat-label">Needs attention</span>
+                    </div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-icon">🟡</div>
+                    <div class="stat-info">
+                        <h3>Medium</h3>
+                        <p class="stat-number" id="mediumAlerts">0</p>
+                        <span class="stat-label">Monitor</span>
+                    </div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-icon">🟢</div>
+                    <div class="stat-info">
+                        <h3>Low</h3>
+                        <p class="stat-number" id="lowAlerts">0</p>
+                        <span class="stat-label">Informational</span>
+                    </div>
+                </div>
+                <div class="stat-card connections">
+                    <div class="stat-icon">🔗</div>
+                    <div class="stat-info">
+                        <h3>Active Connections</h3>
+                        <p class="stat-number" id="activeConnections">0</p>
+                        <span class="stat-label">Current</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHARTS -->
+        <section class="charts-section">
+            <div class="chart-container">
+                <h3>📈 Alerts by Severity</h3>
+                <canvas id="alertTrendChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>🎯 Threats by Type</h3>
+                <canvas id="threatTypeChart"></canvas>
+            </div>
+        </section>
+
+        <!-- RECENT ALERTS -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>🚨 Recent Alerts</h2>
+                <div class="section-actions">
+                    <select id="dashSeverityFilter" class="filter-select">
+                        <option value="">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" id="refreshBtn">
+                        🔄 Refresh
+                    </button>
+                    <button class="btn btn-warning btn-sm" id="clearBtn">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+
+            <div class="alerts-table-container">
+                <table class="alerts-table" id="alertsTable">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Source IP</th>
+                            <th>Destination</th>
+                            <th>Rule ID</th>
+                            <th>Severity</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alertsBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">🔍</span>
+                                    <p>No alerts detected</p>
+                                    <p class="no-data-hint">
+                                        Start monitoring to detect threats
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="dashPagination" style="display:none">
+                <button class="btn btn-secondary btn-sm" id="dashPrevPage">← Previous</button>
+                <span id="dashPageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary btn-sm" id="dashNextPage">Next →</button>
+            </div>
+        </section>
+
+        <!-- NETWORK ACTIVITY -->
+        <section class="network-section">
+            <h2>🌐 Network Activity</h2>
+            <div class="network-stats">
+                <div class="network-stat">
+                    <span class="label">Bytes Received:</span>
+                    <span class="value" id="bytesRecv">0 B</span>
+                </div>
+                <div class="network-stat">
+                    <span class="label">Bytes Sent:</span>
+                    <span class="value" id="bytesSent">0 B</span>
+                </div>
+                <div class="network-stat">
+                    <span class="label">Packets Received:</span>
+                    <span class="value" id="packetsRecv">0</span>
+                </div>
+                <div class="network-stat">
+                    <span class="label">Packets Sent:</span>
+                    <span class="value" id="packetsSent">0</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALS -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🔍 Alert Details</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="alertModalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="explainModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🤖 AI Threat Explanation</h2>
+                <button class="close-btn" id="closeExplainModal">&times;</button>
+            </div>
+            <div class="modal-body" id="explainModalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">
+                Mark all read
+            </button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Predictions - IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item active"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>🤖 ML Predictions</h1>
+                <p class="subtitle">XGBoost UNSW-NB15 Model — Attack vs Normal classification</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="mlRefreshBtn">🔄 Refresh</button>
+                <button class="btn btn-danger btn-sm" id="mlClearBtn">🗑️ Clear</button>
+            </div>
+        </header>
+
+        <!-- MODEL INFO -->
+        <section class="alerts-section" style="margin-bottom:20px">
+            <div class="section-header">
+                <h2>🧠 Model Information</h2>
+                <span id="modelStatus" class="severity-badge severity-low">Loading...</span>
+            </div>
+            <div id="modelInfoGrid" class="info-grid">
+                <div class="no-data"><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- SUMMARY CARDS -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-info">
+                        <h3>Total Predictions</h3>
+                        <p class="stat-number" id="mlTotalPreds">0</p>
+                        <span class="stat-label">All time</span>
+                    </div>
+                </div>
+                <div class="stat-card critical">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <h3>Attacks Detected</h3>
+                        <p class="stat-number" id="mlAttackPreds">0</p>
+                        <span class="stat-label">ML flagged</span>
+                    </div>
+                </div>
+                <div class="stat-card low">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3>Normal Traffic</h3>
+                        <p class="stat-number" id="mlNormalPreds">0</p>
+                        <span class="stat-label">Clean</span>
+                    </div>
+                </div>
+                <div class="stat-card medium">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <h3>Attack Rate</h3>
+                        <p class="stat-number" id="mlAttackRate">0%</p>
+                        <span class="stat-label">Of all traffic</span>
+                    </div>
+                </div>
+                <div class="stat-card connections">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <h3>Avg Confidence</h3>
+                        <p class="stat-number" id="mlAvgConf">0%</p>
+                        <span class="stat-label">Certainty</span>
+                    </div>
+                </div>
+                <div class="stat-card high">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>Data Quality</h3>
+                        <p class="stat-number" id="mlDataQuality">0%</p>
+                        <span class="stat-label">Real features</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOTE ABOUT SEVERITY -->
+        <section class="alerts-section" style="margin-bottom:20px;border-left:4px solid var(--info)">
+            <p style="color:var(--text-secondary);font-size:14px">
+                <strong>ℹ️ Note:</strong> The ML model classifies traffic as
+                <strong>ATTACK</strong> or <strong>NORMAL</strong> only.
+                Attack <strong>severity</strong> (critical/high/medium/low) comes from
+                <strong>rule-based detection</strong>. If only ML detects an attack
+                (rules miss it), it is classified as <strong>medium severity</strong>
+                by default for investigation.
+            </p>
+        </section>
+
+        <!-- FILTERS -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Show</label>
+                    <select id="mlPredFilter" class="filter-select">
+                        <option value="all">All Predictions</option>
+                        <option value="attacks">Attacks Only</option>
+                        <option value="normal">Normal Only</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Per Page</label>
+                    <select id="mlPredLimit" class="filter-select">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-info btn-sm" id="mlApplyFilter">🔍 Apply</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREDICTIONS TABLE -->
+        <section class="alerts-section">
+            <div class="section-header">
+                <h2>📋 Prediction Log</h2>
+                <span id="mlPredCount" class="subtitle">0 entries</span>
+            </div>
+            <div class="alerts-table-container">
+                <table class="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Source IP</th>
+                            <th>Method</th>
+                            <th>Path</th>
+                            <th>Prediction</th>
+                            <th>Attack Prob</th>
+                            <th>Confidence</th>
+                            <th>Data Quality</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mlPredsBody">
+                        <tr class="no-data-row">
+                            <td colspan="9">
+                                <div class="no-data">
+                                    <span class="no-data-icon">🤖</span>
+                                    <p>No predictions yet</p>
+                                    <p class="no-data-hint">Predictions appear as external requests come in</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="mlPagination" style="display:none">
+                <button class="btn btn-secondary btn-sm" id="mlPrevPage">← Previous</button>
+                <span id="mlPageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary btn-sm" id="mlNextPage">Next →</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PREDICTION DETAIL MODAL -->
+    <div class="modal" id="predModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🤖 Prediction Details</h2>
+                <button class="close-btn" id="closePredModal">&times;</button>
+            </div>
+            <div class="modal-body" id="predModalBody"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    let mlPage = 1;
+    let mlTotalPages = 1;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        currentPage = 'ml';
+        loadMLModelInfo();
+        loadMLSummary();
+        loadMLPredictions();
+        updateNotifCount();
+
+        setInterval(() => { loadMLSummary(); loadMLPredictions(); }, 5000);
+
+        on('mlRefreshBtn', 'click', () => {
+            loadMLSummary(); loadMLPredictions();
+            showToast('Refreshed', 'info');
+        });
+
+        on('mlClearBtn', 'click', async () => {
+            if (!confirm('Clear all ML predictions?')) return;
+            await fetch('/api/ml/clear', { method: 'POST' });
+            loadMLSummary(); loadMLPredictions();
+            showToast('Cleared', 'success');
+        });
+
+        on('mlApplyFilter', 'click', () => { mlPage = 1; loadMLPredictions(); });
+        on('mlPrevPage', 'click', () => { if (mlPage > 1) { mlPage--; loadMLPredictions(); } });
+        on('mlNextPage', 'click', () => { if (mlPage < mlTotalPages) { mlPage++; loadMLPredictions(); } });
+
+        on('closePredModal', 'click', () => closeAllModals());
+        document.getElementById('predModal').addEventListener('click', (e) => {
+            if (e.target.id === 'predModal') closeAllModals();
+        });
+
+        if (typeof socket !== 'undefined') {
+            socket.on('ml_alert', () => { loadMLSummary(); loadMLPredictions(); });
+        }
+    });
+
+    async function loadMLModelInfo() {
+        try {
+            const r    = await fetch('/api/ml/model-info');
+            const info = await r.json();
+            const status = document.getElementById('modelStatus');
+            const grid   = document.getElementById('modelInfoGrid');
+
+            if (!info.loaded) {
+                status.textContent = '❌ Not Loaded';
+                status.className   = 'severity-badge severity-critical';
+                grid.innerHTML = '<div class="no-data"><span class="no-data-icon">❌</span><p>Model not loaded</p></div>';
+                return;
+            }
+
+            status.textContent = '✅ Loaded';
+            status.className   = 'severity-badge severity-low';
+
+            grid.innerHTML = `
+                <div class="info-item"><label>Type</label><span>${info.model_class}</span></div>
+                <div class="info-item"><label>Features</label><span>${info.n_features}</span></div>
+                <div class="info-item"><label>Estimators</label><span>${info.n_estimators}</span></div>
+                <div class="info-item"><label>Max Depth</label><span>${info.max_depth}</span></div>
+                <div class="info-item"><label>Learn Rate</label><span>${info.learning_rate}</span></div>
+                <div class="info-item"><label>Objective</label><span>${info.objective}</span></div>
+                <div class="info-item"><label>Output</label><span>0=Normal, 1=Attack</span></div>
+                <div class="info-item"><label>Dataset</label><span>UNSW-NB15</span></div>
+            `;
+        } catch (e) { console.error('loadMLModelInfo:', e); }
+    }
+
+    async function loadMLSummary() {
+        try {
+            const r = await fetch('/api/ml/summary');
+            const s = await r.json();
+            setEl('mlTotalPreds', s.total_predictions || 0);
+            setEl('mlAttackPreds', s.attack_predictions || 0);
+            setEl('mlNormalPreds', s.normal_predictions || 0);
+            setEl('mlAttackRate', (s.attack_rate || 0) + '%');
+            setEl('mlAvgConf', (s.avg_confidence || 0) + '%');
+            setEl('mlDataQuality', (s.avg_data_quality || 0) + '%');
+        } catch (e) { console.error('loadMLSummary:', e); }
+    }
+
+    async function loadMLPredictions() {
+        try {
+            const filter = document.getElementById('mlPredFilter').value;
+            const limit  = document.getElementById('mlPredLimit').value;
+
+            let url = `/api/ml/predictions?limit=${limit}&page=${mlPage}`;
+            if (filter === 'attacks') url += '&only_attacks=true';
+
+            const r    = await fetch(url);
+            const resp = await r.json();
+            let preds  = resp.predictions || resp;
+
+            if (filter === 'normal') {
+                preds = preds.filter(p => !p.is_attack);
+            }
+
+            mlTotalPages = resp.total_pages || 1;
+            mlPage       = resp.page || 1;
+
+            setEl('mlPredCount', `${resp.total || preds.length} entries`);
+
+            const pag = document.getElementById('mlPagination');
+            if (mlTotalPages > 1) {
+                pag.style.display = 'flex';
+                setEl('mlPageInfo', `Page ${mlPage} of ${mlTotalPages}`);
+            } else {
+                pag.style.display = 'none';
+            }
+
+            const tbody = document.getElementById('mlPredsBody');
+            if (!preds.length) {
+                tbody.innerHTML = '<tr class="no-data-row"><td colspan="9"><div class="no-data"><span class="no-data-icon">🤖</span><p>No predictions found</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = preds.map((p, idx) => {
+                const time    = new Date(p.timestamp).toLocaleTimeString();
+                const isAtk   = p.is_attack;
+                const bg      = isAtk ? 'style="background:rgba(239,68,68,0.05)"' : '';
+                const q       = p.data_quality || {};
+                const qp      = q.quality_percent || 0;
+                const qColor  = qp >= 70 ? 'var(--success)' : qp >= 50 ? 'var(--warning)' : 'var(--danger)';
+
+                return `
+                <tr ${bg}>
+                    <td class="cell-time">${time}</td>
+                    <td><span class="ip-link" onclick="showIPDetails('${escHtml(p.source_ip)}')">${escHtml(p.source_ip)}</span></td>
+                    <td><span class="rule-badge">${p.method || 'GET'}</span></td>
+                    <td class="cell-path" title="${escHtml(p.path)}">${escHtml(p.path)}</td>
+                    <td><span class="severity-badge ${isAtk ? 'severity-high' : 'severity-low'}">${isAtk ? '⚠️ ATTACK' : '✅ NORMAL'}</span></td>
+                    <td>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar" style="width:${p.attack_probability}%;background:${p.attack_probability >= 75 ? 'var(--danger)' : p.attack_probability >= 50 ? 'var(--warning)' : 'var(--success)'}"></div>
+                        </div>
+                        <span class="prob-text">${p.attack_probability}%</span>
+                    </td>
+                    <td><span style="color:${p.confidence >= 80 ? 'var(--success)' : 'var(--warning)'}">${p.confidence}%</span></td>
+                    <td><span style="color:${qColor};font-weight:600">${qp}%</span></td>
+                    <td><button class="action-btn details" onclick='showPredDetails(${JSON.stringify(p).replace(/'/g,"&#39;")})'>📋</button></td>
+                </tr>`;
+            }).join('');
+        } catch (e) { console.error('loadMLPredictions:', e); }
+    }
+
+    function showPredDetails(pred) {
+        const body = document.getElementById('predModalBody');
+        if (!body) return;
+        const q = pred.data_quality || {};
+        const f = pred.features || {};
+
+        body.innerHTML = `
+            <div class="alert-detail-grid">
+                <div class="detail-item"><label>Time</label><span>${new Date(pred.timestamp).toLocaleString()}</span></div>
+                <div class="detail-item"><label>Source IP</label><span>${escHtml(pred.source_ip)}</span></div>
+                <div class="detail-item"><label>Prediction</label><span class="severity-badge ${pred.is_attack ? 'severity-high' : 'severity-low'}">${pred.label}</span></div>
+                <div class="detail-item"><label>Method / Path</label><span>${escHtml(pred.method)} ${escHtml(pred.path)}</span></div>
+                <div class="detail-item"><label>Attack Probability</label><span style="color:var(--danger);font-size:20px;font-weight:700">${pred.attack_probability}%</span></div>
+                <div class="detail-item"><label>Normal Probability</label><span style="color:var(--success);font-size:20px;font-weight:700">${pred.normal_probability}%</span></div>
+                <div class="detail-item"><label>Confidence</label><span>${pred.confidence}%</span></div>
+                <div class="detail-item"><label>Data Quality</label><span style="color:${(q.quality_percent||0) >= 70 ? 'var(--success)' : 'var(--warning)'}">${q.quality_percent || 0}% real features</span></div>
+            </div>
+
+            <div class="rule-detail-box" style="margin-top:20px">
+                <h3>📊 Feature Quality</h3>
+                <div class="alert-detail-grid">
+                    <div class="detail-item"><label>Real Features</label><span style="color:var(--success)">✅ ${q.real_features || 0} / ${q.total_features || 39}</span></div>
+                    <div class="detail-item"><label>Estimated</label><span style="color:var(--warning)">⚠️ ${q.estimated_features || 0}</span></div>
+                    <div class="detail-item full-width"><label>Real List</label><span style="font-size:12px">${(q.real_list || []).join(', ')}</span></div>
+                    <div class="detail-item full-width"><label>Estimated List</label><span style="font-size:12px;color:var(--warning)">${(q.estimated_list || []).join(', ')}</span></div>
+                </div>
+            </div>
+
+            <div class="rule-detail-box" style="margin-top:15px">
+                <h3>🔢 Feature Values</h3>
+                <div class="feature-grid">
+                    ${Object.entries(f).map(([k,v]) => `
+                        <div class="feature-item">
+                            <span class="feature-name">${k}</span>
+                            <span class="feature-value">${typeof v === 'number' ? v.toFixed(4) : v}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        openModal('predModal');
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - IDS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛡️ IDS</h2>
+            <span class="version">v3.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="/">📊 Dashboard</a></li>
+            <li class="nav-item"><a href="/alerts">🚨 Alerts</a></li>
+            <li class="nav-item"><a href="/traffic">🌐 Traffic</a></li>
+            <li class="nav-item"><a href="/ml-predictions">🤖 ML Predictions</a></li>
+            <li class="nav-item"><a href="/comparison">⚖️ Comparison</a></li>
+            <li class="nav-item"><a href="/reports">📄 Reports</a></li>
+            <li class="nav-item active"><a href="/settings">⚙️ Settings</a></li>
+            <li class="nav-item"><a href="/help">❓ Help</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="themeBtn">☀️ Light Mode</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+
+        <header class="main-header">
+            <div class="header-left">
+                <h1>⚙️ Settings</h1>
+                <p class="subtitle">Configure system settings and manage IPs</p>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" id="notificationBell">
+                    🔔
+                    <span class="notification-count" id="notifCount" style="display:none">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- BLOCKED IPs -->
+        <section class="settings-section">
+            <h2>🚫 Blocked IPs</h2>
+            <div class="ip-management">
+                <div class="add-ip-form">
+                    <input type="text" id="blockIpInput" class="filter-input"
+                           placeholder="Enter IP to block (e.g. 192.168.1.1)">
+                    <input type="text" id="blockReason" class="filter-input"
+                           placeholder="Reason (optional)">
+                    <button class="btn btn-danger" id="addBlockedIp">🚫 Block IP</button>
+                </div>
+                <div class="ip-list" id="blockedIpList">
+                    <div class="no-data"><p>Loading...</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUTO-BLOCK -->
+        <section class="settings-section">
+            <h2>🤖 Auto-Block Settings</h2>
+            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:15px">
+                Automatically block IPs based on alert severity.
+            </p>
+            <div class="auto-block-section">
+                <h3>⚙️ Configuration</h3>
+                <div class="auto-block-grid">
+                    <div class="auto-block-item">
+                        <label>Enable Auto-Blocking</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoBlockEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="auto-block-item">
+                        <label>Block on Critical</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="blockOnCritical" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="auto-block-item">
+                        <label>Block on High</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="blockOnHigh">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="auto-block-stats" id="autoBlockStats">
+                    <span>Auto-blocked: <strong id="autoBlockCount">0</strong></span>
+                    <span>Status: <strong id="autoBlockStatus">Disabled</strong></span>
+                </div>
+                <div style="margin-top:15px">
+                    <button class="btn btn-success" id="saveAutoBlock">💾 Save Settings</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHITELIST -->
+        <section class="settings-section">
+            <h2>✅ Whitelisted IPs</h2>
+            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:15px">
+                Whitelisted IPs will never trigger alerts.
+            </p>
+            <div class="ip-management">
+                <div class="add-ip-form">
+                    <input type="text" id="whitelistIpInput" class="filter-input"
+                           placeholder="Enter IP to whitelist (e.g. 192.168.1.100)">
+                    <button class="btn btn-success" id="addWhitelistIp">✅ Add to Whitelist</button>
+                </div>
+                <div class="ip-list" id="whitelistIpList">
+                    <div class="no-data"><p>Loading...</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM INFO -->
+        <section class="settings-section">
+            <h2>💻 System Information</h2>
+            <div id="systemInfo">
+                <div class="no-data"><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- NETWORK INTERFACES -->
+        <section class="settings-section">
+            <h2>🌐 Network Interfaces</h2>
+            <div id="networkInterfaces">
+                <div class="no-data"><p>Loading...</p></div>
+            </div>
+        </section>
+
+        <!-- DANGER ZONE -->
+        <section class="settings-section danger-zone">
+            <h2>⚠️ Danger Zone</h2>
+            <div class="danger-actions">
+                <div class="danger-item">
+                    <div>
+                        <h4>Clear All Alerts</h4>
+                        <p>Remove all alerts. Cannot be undone.</p>
+                    </div>
+                    <button class="btn btn-danger" id="clearAllAlerts">🗑️ Clear Alerts</button>
+                </div>
+                <div class="danger-item">
+                    <div>
+                        <h4>Reset Blocked IPs</h4>
+                        <p>Unblock all currently blocked IPs.</p>
+                    </div>
+                    <button class="btn btn-warning" id="resetBlockedIps">🔓 Reset</button>
+                </div>
+                <div class="danger-item">
+                    <div>
+                        <h4>Clear ML Predictions</h4>
+                        <p>Remove all ML prediction history.</p>
+                    </div>
+                    <button class="btn btn-warning" id="clearMLData">🤖 Clear ML</button>
+                </div>
+                <div class="danger-item">
+                    <div>
+                        <h4>Clear Comparison Data</h4>
+                        <p>Remove all comparison logs.</p>
+                    </div>
+                    <button class="btn btn-warning" id="clearCompData">⚖️ Clear Comparison</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal" id="ipModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>🌐 IP Address Details</h2>
+                <button class="close-btn" id="closeIpModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ipModalBody"></div>
+        </div>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel">
+        <div class="panel-header">
+            <h3>🔔 Notifications</h3>
+            <button class="btn btn-sm btn-secondary" id="markAllRead">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="empty-notifications">No notifications</p>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        currentPage = 'settings';
+        loadBlockedIps();
+        loadWhitelist();
+        loadSystemInfo();
+        loadNetworkInterfaces();
+        loadAutoBlockSettings();
+        updateNotifCount();
+
+        // Auto-refresh system info
+        setInterval(loadSystemInfo, 30000);
+
+        // Block IP
+        on('addBlockedIp', 'click', async () => {
+            const ip = document.getElementById('blockIpInput').value.trim();
+            const reason = document.getElementById('blockReason').value.trim();
+            if (!ip) { showToast('Enter an IP', 'error'); return; }
+            if (!isValidIP(ip)) { showToast('Invalid IP', 'error'); return; }
+            try {
+                const r = await fetch('/api/ip/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, reason }),
+                });
+                if (r.ok) {
+                    document.getElementById('blockIpInput').value = '';
+                    document.getElementById('blockReason').value = '';
+                    showToast(`IP ${ip} blocked`, 'success');
+                    loadBlockedIps();
+                } else { showToast('Failed', 'error'); }
+            } catch (e) { showToast('Failed', 'error'); }
+        });
+
+        // Whitelist IP
+        on('addWhitelistIp', 'click', async () => {
+            const ip = document.getElementById('whitelistIpInput').value.trim();
+            if (!ip) { showToast('Enter an IP', 'error'); return; }
+            if (!isValidIP(ip)) { showToast('Invalid IP', 'error'); return; }
+            try {
+                const r = await fetch('/api/ip/whitelist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip }),
+                });
+                if (r.ok) {
+                    document.getElementById('whitelistIpInput').value = '';
+                    showToast(`IP ${ip} whitelisted`, 'success');
+                    loadWhitelist();
+                } else { showToast('Failed', 'error'); }
+            } catch (e) { showToast('Failed', 'error'); }
+        });
+
+        // Save auto-block
+        on('saveAutoBlock', 'click', async () => {
+            const settings = {
+                enabled: document.getElementById('autoBlockEnabled').checked,
+                block_on_critical: document.getElementById('blockOnCritical').checked,
+                block_on_high: document.getElementById('blockOnHigh').checked,
+            };
+            try {
+                const r = await fetch('/api/ip/auto-block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings),
+                });
+                if (r.ok) { showToast('Saved', 'success'); loadAutoBlockSettings(); }
+                else { showToast('Failed', 'error'); }
+            } catch (e) { showToast('Failed', 'error'); }
+        });
+
+        // Danger zone
+        on('clearAllAlerts', 'click', async () => {
+            if (!confirm('Delete ALL alerts? Cannot be undone.')) return;
+            await fetch('/api/alerts/clear', { method: 'POST' });
+            showToast('Alerts cleared', 'success');
+        });
+
+        on('resetBlockedIps', 'click', async () => {
+            if (!confirm('Unblock ALL IPs?')) return;
+            try {
+                const r = await fetch('/api/ip/blocked');
+                const ips = await r.json();
+                for (const entry of ips) {
+                    await fetch('/api/ip/unblock', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ip: entry.ip }),
+                    });
+                }
+                showToast(`${ips.length} IP(s) unblocked`, 'success');
+                loadBlockedIps();
+            } catch (e) { showToast('Failed', 'error'); }
+        });
+
+        on('clearMLData', 'click', async () => {
+            if (!confirm('Clear ML predictions?')) return;
+            await fetch('/api/ml/clear', { method: 'POST' });
+            showToast('ML data cleared', 'success');
+        });
+
+        on('clearCompData', 'click', async () => {
+            if (!confirm('Clear comparison data?')) return;
+            await fetch('/api/comparison/clear', { method: 'POST' });
+            showToast('Comparison cleared', 'success');
+        });
+
+        // Enter key
+        document.getElementById('blockIpInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('addBlockedIp').click();
+        });
+        document.getElementById('whitelistIpInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('addWhitelistIp').click();
+        });
+    });
+
+    async function loadBlockedIps() {
+        const c = document.getElementById('blockedIpList');
+        try {
+            const r = await fetch('/api/ip/blocked');
+            if (!r.ok) throw new Error();
+            const ips = await r.json();
+            if (!ips.length) {
+                c.innerHTML = '<div class="no-data"><span class="no-data-icon">✅</span><p>No blocked IPs</p></div>';
+                return;
+            }
+            c.innerHTML = ips.map(e => `
+                <div class="ip-item blocked">
+                    <div class="ip-item-info">
+                        <span class="ip-item-address">🚫 ${e.ip}</span>
+                        ${e.reason ? `<span class="ip-item-reason">📝 ${escHtml(e.reason)}</span>` : ''}
+                        ${e.blocked_at ? `<span class="ip-item-time">🕒 ${new Date(e.blocked_at).toLocaleString()}</span>` : ''}
+                    </div>
+                    <div class="ip-item-meta">
+                        ${e.auto_blocked ? '<span class="auto-badge">AUTO</span>' : ''}
+                        <button class="btn btn-sm btn-secondary" onclick="unblockIp('${e.ip}')">🔓 Unblock</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAlertsByIp('${e.ip}')">🗑️ Delete Alerts</button>
+                        <button class="btn btn-sm btn-info" onclick="showIPDetails('${e.ip}')">🔍 Details</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed to load</p></div>'; }
+    }
+
+    async function loadWhitelist() {
+        const c = document.getElementById('whitelistIpList');
+        try {
+            const r = await fetch('/api/ip/whitelist');
+            if (!r.ok) throw new Error();
+            const ips = await r.json();
+            if (!ips.length) {
+                c.innerHTML = '<div class="no-data"><span class="no-data-icon">📋</span><p>No whitelisted IPs</p></div>';
+                return;
+            }
+            c.innerHTML = ips.map(ip => `
+                <div class="ip-item whitelisted">
+                    <div class="ip-item-info">
+                        <span class="ip-item-address">✅ ${ip}</span>
+                    </div>
+                    <div class="ip-item-meta">
+                        <button class="btn btn-sm btn-secondary" onclick="removeFromWhitelist('${ip}')">❌ Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed</p></div>'; }
+    }
+
+    async function loadSystemInfo() {
+        const c = document.getElementById('systemInfo');
+        try {
+            const r = await fetch('/api/system/info');
+            if (!r.ok) throw new Error();
+            const info = await r.json();
+            const cpuC = info.cpu_percent > 80 ? 'var(--danger)' : info.cpu_percent > 60 ? 'var(--warning)' : 'var(--success)';
+            const memC = info.memory_percent > 80 ? 'var(--danger)' : info.memory_percent > 60 ? 'var(--warning)' : 'var(--success)';
+            const dskC = info.disk_percent > 90 ? 'var(--danger)' : info.disk_percent > 70 ? 'var(--warning)' : 'var(--success)';
+
+            c.innerHTML = `
+                <div class="info-grid">
+                    <div class="info-item"><label>Application</label><span>${info.app_name} v${info.version}</span></div>
+                    <div class="info-item"><label>Monitoring</label><span style="color:${info.monitoring_active ? 'var(--success)' : 'var(--danger)'}">${info.monitoring_active ? '🟢 Active' : '🔴 Stopped'}</span></div>
+                    <div class="info-item"><label>ML Model</label><span style="color:${info.ml_model_loaded ? 'var(--success)' : 'var(--danger)'}">${info.ml_model_loaded ? '🧠 Loaded' : '❌ Not Loaded'}</span></div>
+                    <div class="info-item"><label>CPU</label><span style="color:${cpuC}">${info.cpu_percent}%</span></div>
+                    <div class="info-item"><label>Memory</label><span style="color:${memC}">${info.memory_percent}%</span></div>
+                    <div class="info-item"><label>Disk</label><span style="color:${dskC}">${info.disk_percent}%</span></div>
+                </div>
+            `;
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed</p></div>'; }
+    }
+
+    async function loadNetworkInterfaces() {
+        const c = document.getElementById('networkInterfaces');
+        try {
+            const r = await fetch('/api/network/interfaces');
+            if (!r.ok) throw new Error();
+            const ifaces = await r.json();
+            if (!ifaces.length) { c.innerHTML = '<div class="no-data"><p>None found</p></div>'; return; }
+            c.innerHTML = ifaces.map(i => `
+                <div class="interface-item">
+                    <strong>🔌 ${i.name}</strong>
+                    <span>IP: ${i.ip}</span>
+                    <span>Netmask: ${i.netmask || 'N/A'}</span>
+                </div>
+            `).join('');
+        } catch (e) { c.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠️</span><p>Failed</p></div>'; }
+    }
+
+    async function loadAutoBlockSettings() {
+        try {
+            const r = await fetch('/api/ip/auto-block');
+            if (!r.ok) throw new Error();
+            const s = await r.json();
+            document.getElementById('autoBlockEnabled').checked = s.enabled || false;
+            document.getElementById('blockOnCritical').checked = s.block_on_critical !== false;
+            document.getElementById('blockOnHigh').checked = s.block_on_high || false;
+            setEl('autoBlockCount', s.blocked_count || 0);
+            const statusEl = document.getElementById('autoBlockStatus');
+            statusEl.textContent = s.enabled ? 'Enabled' : 'Disabled';
+            statusEl.style.color = s.enabled ? 'var(--success)' : 'var(--danger)';
+        } catch (e) { console.error('loadAutoBlock:', e); }
+    }
+
+    async function unblockIp(ip) {
+        if (!confirm(`Unblock ${ip}?`)) return;
+        try {
+            const r = await fetch('/api/ip/unblock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip }),
+            });
+            if (r.ok) { showToast(`${ip} unblocked`, 'success'); loadBlockedIps(); }
+            else { showToast('Failed', 'error'); }
+        } catch (e) { showToast('Failed', 'error'); }
+    }
+
+    async function deleteAlertsByIp(ip) {
+        if (!confirm(`Delete ALL alerts from ${ip}?`)) return;
+        try {
+            const r = await fetch(`/api/alerts/ip/${ip}`, { method: 'DELETE' });
+            if (r.ok) {
+                const result = await r.json();
+                showToast(`Deleted ${result.deleted} alerts from ${ip}`, 'success');
+            } else { showToast('Failed', 'error'); }
+        } catch (e) { showToast('Failed', 'error'); }
+    }
+
+    async function removeFromWhitelist(ip) {
+        if (!confirm(`Remove ${ip} from whitelist?`)) return;
+        try {
+            const r = await fetch('/api/ip/whitelist', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip }),
+            });
+            if (r.ok) { showToast(`${ip} removed`, 'success'); loadWhitelist(); }
+            else { showToast('Failed', 'error'); }
+        } catch (e) { showToast('Failed', 'error'); }
+    }
+
+    function isValidIP(ip) {
+        if (ip === 'localhost') return true;
+        const ipv4 = /^(\d{1,3}\.){3}\d{1,3}$/;
+        if (!ipv4.test(ip)) return false;
+        return ip.split('.').every(n => {
+            const num = parseInt(n);
+            return num >= 0 && num <= 255 && String(num) === n;
+        });
+    }
+    </script>
+</body>
+</html>
